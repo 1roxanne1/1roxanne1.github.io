@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>前端项目部署</title>
+      <link href="/2024/08/13/%E5%89%8D%E7%AB%AF-2024-08-13-%E8%8B%A5%E4%BE%9D%E5%89%8D%E7%AB%AF%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2/"/>
+      <url>/2024/08/13/%E5%89%8D%E7%AB%AF-2024-08-13-%E8%8B%A5%E4%BE%9D%E5%89%8D%E7%AB%AF%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2/</url>
+      
+        <content type="html"><![CDATA[<h1 id="若依前端项目部署"><a href="#若依前端项目部署" class="headerlink" title="若依前端项目部署"></a>若依前端项目部署</h1><h1 id="1-打包正式环境"><a href="#1-打包正式环境" class="headerlink" title="1.打包正式环境"></a>1.打包正式环境</h1><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 打包正式环境</span><br><span class="line">npm run <span class="attr">build</span>:prod</span><br><span class="line"></span><br><span class="line"># 打包预发布环境</span><br><span class="line">npm run <span class="attr">build</span>:stage</span><br></pre></td></tr></table></figure><p>构建打包成功之后，会在根目录生成 <code>dist</code> 文件夹，里面就是构建打包好的文件，通常是 <code>***.js</code> 、<code>***.css</code>、<code>index.html</code> 等静态文件。</p><p>通常情况下 <code>dist</code> 文件夹的静态文件发布到你的 nginx 或者静态服务器即可，其中的 <code>index.html</code> 是后台服务的入口页面。</p><h1 id="2-使用nginx进行前端代理"><a href="#2-使用nginx进行前端代理" class="headerlink" title="2.使用nginx进行前端代理"></a>2.使用nginx进行前端代理</h1><p>把前端打包生成的静态文件拷贝到nginx的html目录下</p><p><img src="assets\static-file.png" alt=""></p><p>下方是一个自己部署的nginx配置</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">worker_processes  1;</span><br><span class="line"></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections  1024;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line">    sendfile        on;</span><br><span class="line">    keepalive_timeout  65;</span><br><span class="line"></span><br><span class="line">    server &#123;</span><br><span class="line">        listen       70;#监听端口，修改了前端为70</span><br><span class="line">        server_name  localhost;</span><br><span class="line">charset utf-8;</span><br><span class="line"></span><br><span class="line">location / &#123;</span><br><span class="line">            root   html/dist;#对应静态资源目录</span><br><span class="line">try_files $uri $uri/ /index.html;</span><br><span class="line">            index  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">location /prod-api/ &#123;#跨域代理到后端</span><br><span class="line">proxy_set_header Host $http_host;</span><br><span class="line">proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">proxy_set_header REMOTE-HOST $remote_addr;</span><br><span class="line">proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">proxy_pass http://localhost:8080/;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">        error_page   500 502 503 504  /50x.html;</span><br><span class="line">        location = /50x.html &#123;</span><br><span class="line">            root   html;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> Web前端 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 前端 </tag>
+            
+            <tag> Nginx </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>C语言基础</title>
       <link href="/2024/08/08/c-cpp-2024-08-08-C%E5%9F%BA%E7%A1%80/"/>
       <url>/2024/08/08/c-cpp-2024-08-08-C%E5%9F%BA%E7%A1%80/</url>
